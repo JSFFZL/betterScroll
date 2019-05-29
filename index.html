@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            list-style: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .wrapper {
+            width: 100%;
+            height: calc(100% - 60px);
+            overflow: hidden;
+        }
+
+        .content {
+            border: solid 1px red;
+        }
+
+        .pull-down,
+        .pull-up {
+            position: absolute;
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            background: #999;
+        }
+
+        .pull-down {
+            top: -50px;
+        }
+
+        .pull-up {
+            bottom: -50px;
+        }
+
+        li {
+            width: 100%;
+            height: 50px;
+            border-right: solid 1px #666;
+        }
+
+        .no {
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            background: #666;
+        }
+
+        .main {
+            width: 100%;
+            height: 60px;
+            overflow: hidden;
+        }
+
+        .box {
+            height: 60px;
+        }
+
+        .menu {
+            display: flex;
+        }
+
+        .menu li {
+            /* flex: 1; */
+            width: 100px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+    </style>
+    <script src="js/bscroll.min.js"></script>
+    <script>
+        window.onload = function () {
+
+            // 横向滚动：需要注意，内盒子的宽度，需要动态获取元素的宽总和
+            var lisW = document.querySelector(".menu li").offsetWidth;
+            var menuW = document.querySelector(".menu");
+            document.querySelector(".box").style.width = lisW * menuW.children.length + "px";
+            var bs1 = new BScroll(".main", {
+                scrollX: true
+            });
+
+            var pDown = document.querySelector(".pull-down");
+            var pUp = document.querySelector(".pull-up");
+            var h = pDown.offsetHeight;
+
+            //判断数据是否加载完了
+            var endData = 0;
+            var data = [];
+            for (let i = 16; i <= 20; i++) {
+                data.push(i)
+            }
+
+            var bs = new BScroll(".wrapper", {
+                probeType: 2
+            });
+
+            bs.on("scroll", onScroll);
+            bs.on("scrollEnd", scrollEnd)
+
+            function scrollEnd() {
+                var falg = pDown.getAttribute("falg");
+                var falgUp = pUp.getAttribute("falg");
+                if (falg) {
+                    location.reload();
+                }
+                if (falgUp) {
+                    // console.log("加载");
+                    loadData()
+                }
+
+            }
+
+            function loadData() {
+                var no = document.querySelector(".no");
+                if (data.length > 0) {
+                    var newData = data.splice(0, 10);
+                    //forEach // map
+                    document.querySelector(".list").innerHTML += newData.map(function (item) {
+                        return "<li>" + item + "</li>"
+                    }).join("");
+                    bs.refresh();
+                } else {
+                    pUp.innerHTML = "没有更多数据了"
+                    endData = 1;
+                }
+            }
+
+            function onScroll() {
+
+                if (this.y > h) {
+                    pDown.innerHTML = "释放刷新..."
+                    pDown.setAttribute("falg", true);
+                } else {
+                    pDown.innerHTML = "下拉刷新"
+                    pDown.removeAttribute("falg");
+                }
+
+                if (!endData) { //0 - false 1 - true
+                    if (this.y < (this.maxScrollY - h)) {
+                        pUp.innerHTML = "释放加载...";
+                        pUp.setAttribute("falg", true);
+                    } else {
+                        pUp.innerHTML = "上拉加载..."
+                        pUp.removeAttribute("falg");
+                    }
+                }
+            }
+
+        }
+
+    </script>
+
+
+</head>
+
+<body>
+    <!-- 横向滚动 -->
+    <div class="main">
+        <div class="box">
+            <ul class="menu">
+                <li>热门</li>
+                <li>足球宝贝</li>
+                <li>社会百态</li>
+                <li>军事动态</li>
+                <li>动物世界</li>
+                <li>黑猫警长</li>
+                <li>金融天下</li>
+                <li>汽车之家</li>
+                <li>娱乐八卦</li>
+            </ul>
+        </div>
+    </div>
+<!-- 纵向滚动 -->
+    <div class="wrapper">
+        <div class="content">
+            <p class="pull-down">下拉刷新</p>
+            <ul class="list">
+                <li>1</li>
+                <li>2</li>
+                <li>3</li>
+                <li>4</li>
+                <li>5</li>
+                <li>6</li>
+                <li>7</li>
+                <li>8</li>
+                <li>9</li>
+                <li>10</li>
+                <li>11</li>
+                <li>12</li>
+                <li>13</li>
+                <li>14</li>
+                <li>15</li>
+            </ul>
+            <p class="pull-up">上拉加载</p>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
